@@ -13,7 +13,8 @@ public class ImageCompare1hash {
 		/*
 		 * @para file1,    file1 is the main file, that is, the image will be migrated
 		 * @para file2 ,	don't use point in the file name
-		 * @para blocksize，      in the unit of KB
+		 * @para blocksize锛�      in the unit of KB
+		 * @para hash method,  0 is ap, 1 is bkdr.
 		 */
 		Constant.file1=args[0];
 		System.out.println("The first input file name is: "+Constant.file1);
@@ -22,6 +23,10 @@ public class ImageCompare1hash {
 		int size = Integer.parseInt(args[2]);
 		System.out.println("The blocksize is: "+size+"K");
 		Constant.blocksize=size*1024;
+		String hashmethod = args[3];
+		if(hashmethod.equals("bkdr"))
+			Constant.HASH_METHOD = 1;
+		System.out.println("The hash method is:"+Constant.HASH_METHOD);
 		//build the name of hashtables
 		StringBuilder strbuilder1 = new StringBuilder();
 		String file1part = Constant.file1.split("\\.")[0];    //cannot use point directly, must use "\\" before it

@@ -25,53 +25,76 @@ public class GenerateHash {
 		File file_out = new File(hashtable);
 		OutputStream writer = new FileOutputStream(file_out);
 		WritableWorkbook workbook = Workbook.createWorkbook(writer);
-		WritableSheet sheet1 = workbook.createSheet("BKDR",0);
-		WritableSheet sheet2 = workbook.createSheet("AP",1);
+		WritableSheet sheet = workbook.createSheet("Hashtable",0);
 
 		//call hash functions
-		BKDR bkdrhasher = new BKDR();
-		AP aphasher = new AP();
-		
 		int blocknum = 0;
 		int position = 0;
 		int size = reader.available();     //the total image size in byte
 		byte[] bb = new byte[Constant.blocksize];
 		String temp = null;
+		String tempabs = null;
 		long bkdrabs = 0;
 		long apabs = 0;
-		while(position<size){
+		switch (Constant.HASH_METHOD)
+		{
+		case 0:
+			AP aphasher = new AP();
+			while(position<size){
 		     	//special tackle the last block
-					if((size-position)<Constant.blocksize){
-								byte[] lastbf = new byte[(size-position)];
-								reader.read(lastbf);
-								temp = new String(lastbf);
-								bkdrabs = bkdrhasher.bkdrhash(temp);
-								apabs = aphasher.aphash(temp);	    	
-								String temp1 = Long.toString(bkdrabs);
-								String temp2 = Long.toString(apabs);
-								Label tempcell1 = new Label (blocknum/Constant.COLUMNS,blocknum%Constant.COLUMNS, temp1);
-								Label tempcell2 = new Label (blocknum/Constant.COLUMNS,blocknum%Constant.COLUMNS, temp2);
-								sheet1.addCell(tempcell1);
-								sheet2.addCell(tempcell2);
-								break;
+				if((size-position)<Constant.blocksize){
+						byte[] lastbf = new byte[(size-position)];
+						reader.read(lastbf);
+						temp = new String(lastbf);
+						apabs = aphasher.aphash(temp);	    	
+						tempabs = Long.toString(apabs);
+						Label tempcell = new Label (blocknum/Constant.COLUMNS,blocknum%Constant.COLUMNS, tempabs);
+						sheet.addCell(tempcell);
+						break;
 					}
 					reader.read(bb);
 					temp = new String (bb);
-					bkdrabs = bkdrhasher.bkdrhash(temp);
 					apabs = aphasher.aphash(temp);	    	
-					String temp1 = Long.toString(bkdrabs);
-					String temp2 = Long.toString(apabs);
-					Label tempcell1 = new Label (blocknum/Constant.COLUMNS,blocknum%Constant.COLUMNS, temp1);
-					Label tempcell2 = new Label (blocknum/Constant.COLUMNS,blocknum%Constant.COLUMNS, temp2);
-					sheet1.addCell(tempcell1);
-					sheet2.addCell(tempcell2);
+					tempabs = Long.toString(apabs);
+					Label tempcell = new Label (blocknum/Constant.COLUMNS,blocknum%Constant.COLUMNS, tempabs);
+					sheet.addCell(tempcell);
 					position += Constant.blocksize;
 					blocknum++;
+			}
+			//System.out.println("Total block: "+blocknum);
+			workbook.write();
+			workbook.close();
+			reader.close();
+			break;
+		case 1:
+			BKDR bkdrhasher = new BKDR();
+			while(position<size){
+		     	//special tackle the last block
+				if((size-position)<Constant.blocksize){
+						byte[] lastbf = new byte[(size-position)];
+						reader.read(lastbf);
+						temp = new String(lastbf);
+						bkdrabs = bkdrhasher.bkdrhash(temp);	    	
+						tempabs = Long.toString(bkdrabs);
+						Label tempcell = new Label (blocknum/Constant.COLUMNS,blocknum%Constant.COLUMNS, tempabs);
+						sheet.addCell(tempcell);
+						break;
+					}
+					reader.read(bb);
+					temp = new String (bb);
+					bkdrabs = bkdrhasher.bkdrhash(temp);    	
+					tempabs = Long.toString(bkdrabs);
+					Label tempcell = new Label (blocknum/Constant.COLUMNS,blocknum%Constant.COLUMNS, tempabs);
+					sheet.addCell(tempcell);
+					position += Constant.blocksize;
+					blocknum++;
+			}
+			//System.out.println("Total block: "+blocknum);
+			workbook.write();
+			workbook.close();
+			reader.close();
+			break;
 		}
-		//System.out.println("Total block: "+blocknum);
-		workbook.write();
-		workbook.close();
-		reader.close();
 		return blocknum;
 	}
 }

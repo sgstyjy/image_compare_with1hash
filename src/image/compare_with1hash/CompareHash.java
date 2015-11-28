@@ -19,21 +19,17 @@ public class CompareHash {
 		    File file_in1 = new File(table1);
 		    //System.out.println("The first input compare table is:  "+file_in1.getName());
 			Workbook book1 = Workbook.getWorkbook(file_in1);
-			Sheet sheet1bkdr = book1.getSheet(0);
-			Sheet sheet1ap = book1.getSheet(1);
+			Sheet sheet1 = book1.getSheet(0);
 			
 			//read the second hashtable, and generate the node list
 			File file_in2 = new File(table2);
 			//System.out.println("The second input compare table is:  "+file_in2.getName());
 			Workbook book2 = Workbook.getWorkbook(file_in2);
-			Sheet sheet2bkdr = book2.getSheet(0);
-			Sheet sheet2ap = book2.getSheet(1);
+			Sheet sheet2 = book2.getSheet(0);
 			
 			//generate node list according to the hashtables
-			Node[] bkdr = new Node[Constant.PRIME]; 
-			Node[] ap = new Node[Constant.PRIME]; 
-			bkdr = generateArray(sheet2bkdr, Constant.nodenumlistbkdr);
-			ap = generateArray(sheet2ap, Constant.nodenumlistap);
+			Node[] hashlinks = new Node[Constant.PRIME]; 
+			hashlinks = generateArray(sheet2, Constant.nodenumlist);
 			
 			//the compare result table
 			File compareresult = new File(Constant.compareresult);
@@ -42,17 +38,15 @@ public class CompareHash {
 			WritableSheet writer = workbook.createSheet("compare_result",0);
 			
 			int i =0;
-			String temps1, temps2=null;
-			long templ1,templ2 = 0;
+			String temps1=null;
+			long templ1= 0;
 			while(i< Constant.totalblocks1){
 				       //read data from the first hashtable
 				       //System.out.println(i);
-						temps1 = sheet1bkdr.getCell(i/Constant.COLUMNS, i%Constant.COLUMNS).getContents();
-						temps2 = sheet1ap.getCell(i/Constant.COLUMNS, i%Constant.COLUMNS).getContents();
+						temps1 = sheet1.getCell(i/Constant.COLUMNS, i%Constant.COLUMNS).getContents();
 						templ1 = Long.parseLong(temps1);
-						templ2 = Long.parseLong(temps2);
 						//if the both hash values are same, then the data block is same
-						if(findHash(bkdr, Constant.nodenumlistbkdr, templ1) && findHash(ap, Constant.nodenumlistap,templ2))
+						if(findHash(hashlinks, Constant.nodenumlist, templ1))
 						{
 							    Constant.similar++;
 							    i++;
